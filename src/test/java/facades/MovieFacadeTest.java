@@ -105,5 +105,10 @@ public class MovieFacadeTest {
         MovieDTO databaseMovie = facade.getMovieById(1);
         assertEquals(new MovieDTO(movies.get(0)), databaseMovie);
     }
-
+    
+    @Test
+    public void testGetMovieByName() {
+        MovieDTO databaseMovie = facade.getMovieByName("Test Name 1");
+        assertEquals(new MovieDTO(movies.get(0)), databaseMovie);
+    }
 }

@@ -16,9 +16,11 @@ import org.glassfish.grizzly.http.util.HttpStatus;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import utils.EMF_Creator.DbSelector;
 import utils.EMF_Creator.Strategy;
@@ -67,7 +69,6 @@ public class MovieResourceTest {
     }
     
     // Setup the DataBase (used by the test-server and this test) in a known state BEFORE EACH TEST
-    //TODO -- Make sure to change the script below to use YOUR OWN entity class
     @BeforeEach
     public void setUp() {
         EntityManager em = emf.createEntityManager();
@@ -105,5 +106,37 @@ public class MovieResourceTest {
         .assertThat()
         .statusCode(HttpStatus.OK_200.getStatusCode())
         .body("count", equalTo(2));   
+    }
+    
+    @Test
+    public void testGetMovies() throws Exception {
+        given()
+        .contentType("application/json")
+        .get("/movie/all").then()
+        .assertThat()
+        .statusCode(HttpStatus.OK_200.getStatusCode())
+        .body("actors[0]", hasItem("Andreas"));   
+    }
+    
+    @Disabled
+    @Test
+    public void testGetMovieById() throws Exception {
+        given()
+        .contentType("application/json")
+        .get("/movie/1").then()
+        .assertThat()
+        .statusCode(HttpStatus.OK_200.getStatusCode())
+        .body("name", equalTo("Test Name 1"));   
+    }
+    
+    @Disabled
+    @Test
+    public void testGetMovieByName() throws Exception {
+        given()
+        .contentType("application/json")
+        .get("/movie/name/Test%20Name%202").then()
+        .assertThat()
+        .statusCode(HttpStatus.OK_200.getStatusCode())
+        .body("name", equalTo("Test Name 2"));   
     }
 }
