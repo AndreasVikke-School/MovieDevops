@@ -1,7 +1,10 @@
 package facades;
 
+import dto.MovieDTO;
+import entities.Movie;
+import java.util.ArrayList;
+import java.util.List;
 import utils.EMF_Creator;
-import entities.RenameMe;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.AfterAll;
@@ -9,19 +12,19 @@ import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import utils.Settings;
 import utils.EMF_Creator.DbSelector;
 import utils.EMF_Creator.Strategy;
 
 //Uncomment the line below, to temporarily disable this test
 //@Disabled
-public class FacadeExampleTest {
+public class MovieFacadeTest {
 
     private static EntityManagerFactory emf;
-    private static FacadeExample facade;
+    private static MovieFacade facade;
 
-    public FacadeExampleTest() {
+    public MovieFacadeTest() {
     }
 
     //@BeforeAll
@@ -32,7 +35,7 @@ public class FacadeExampleTest {
                 "dev",
                 "ax2",
                 EMF_Creator.Strategy.CREATE);
-        facade = FacadeExample.getFacadeExample(emf);
+        facade = MovieFacade.getMovieFacade(emf);
     }
 
     /*   **** HINT **** 
@@ -44,8 +47,10 @@ public class FacadeExampleTest {
     @BeforeAll
     public static void setUpClassV2() {
        emf = EMF_Creator.createEntityManagerFactory(DbSelector.TEST,Strategy.DROP_AND_CREATE);
-       facade = FacadeExample.getFacadeExample(emf);
+       facade = MovieFacade.getMovieFacade(emf);
     }
+    
+    List<Movie> movies = new ArrayList();
 
     @AfterAll
     public static void tearDownClass() {
@@ -53,17 +58,24 @@ public class FacadeExampleTest {
     }
 
     // Setup the DataBase in a known state BEFORE EACH TEST
-    //TODO -- Make sure to change the script below to use YOUR OWN entity class
     @BeforeEach
     public void setUp() {
         EntityManager em = emf.createEntityManager();
+        
+        String[] actors = new String[]{"Andreas", "Asger", "William", "Martin"};
+        movies.add(new Movie(1998, "Test Name 1", actors));
+        movies.add(new Movie(1999, "Test Name 2", actors));
+        
         try {
             em.getTransaction().begin();
-            em.createNamedQuery("RenameMe.deleteAllRows").executeUpdate();
-            em.persist(new RenameMe("Some txt", "More text"));
-            em.persist(new RenameMe("aaa", "bbb"));
-
+            em.createNamedQuery("Movie.deleteAllRows").executeUpdate();
             em.getTransaction().commit();
+            
+            for(Movie m : movies) {
+                em.getTransaction().begin();
+                em.persist(m);
+                em.getTransaction().commit();
+            }
         } finally {
             em.close();
         }
@@ -74,10 +86,24 @@ public class FacadeExampleTest {
 //        Remove any data after each test was run
     }
 
-    // TODO: Delete or change this method 
     @Test
-    public void testAFacadeMethod() {
-        assertEquals(2, facade.getRenameMeCount(), "Expects two rows in the database");
+    public void testGetMovieCount() {
+        assertEquals(2, facade.getMovieCount(), "Expects two rows in the database");
+    }
+    
+    @Test
+    public void testGetMovies() {
+        List<MovieDTO> databaseMovies = facade.getMovies();
+        assertEquals(new MovieDTO(movies.get(0)), databaseMovies.get(0));
+        assertEquals(new MovieDTO(movies.get(1)), databaseMovies.get(1));
+        assertEquals(2, databaseMovies.size(), "Expects two rows in the database");
+    }
+    
+    @Disabled
+    @Test
+    public void testGetMovieById() {
+        MovieDTO databaseMovie = facade.getMovieById(1);
+        assertEquals(new MovieDTO(movies.get(0)), databaseMovie);
     }
 
 }
