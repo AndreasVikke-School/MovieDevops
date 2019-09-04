@@ -54,10 +54,10 @@ public class MovieFacade {
         }
     }
     
-     public MovieDTO getMovieByName(String name){
+     public List<MovieDTO> getMovieByName(String name){
         EntityManager em = emf.createEntityManager();
         try{
-            return em.createQuery("SELECT new dto.MovieDTO(m) FROM Movie m WHERE m.name = :name", MovieDTO.class).setParameter("name", name).getSingleResult();
+            return em.createQuery("SELECT new dto.MovieDTO(m) FROM Movie m WHERE m.name = :name", MovieDTO.class).setParameter("name", name).getResultList();
         }finally{  
             em.close();
         }

@@ -21,6 +21,11 @@ public class MovieDTO {
         this.actors = movie.getActors();
     }
 
+    public Long getId() {
+        return id;
+    }
+    
+
     public int getYear() {
         return year;
     }

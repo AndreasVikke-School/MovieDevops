@@ -20,7 +20,6 @@ import static org.hamcrest.Matchers.hasItem;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import utils.EMF_Creator.DbSelector;
 import utils.EMF_Creator.Strategy;
@@ -43,14 +42,12 @@ public class MovieResourceTest {
         return GrizzlyHttpServerFactory.createHttpServer(BASE_URI, rc);
     }
 
+    
+    static List<Movie> movies = new ArrayList();
+    
     @BeforeAll
     public static void setUpClass() {
-        emf = EMF_Creator.createEntityManagerFactory(DbSelector.TEST, Strategy.CREATE);
-
-        //NOT Required if you use the version of EMF_Creator.createEntityManagerFactory used above        
-        //System.setProperty("IS_TEST", TEST_DB);
-        //We are using the database on the virtual Vagrant image, so username password are the same for all dev-databases
-        
+        emf = EMF_Creator.createEntityManagerFactory(DbSelector.TEST, Strategy.DROP_AND_CREATE);
         httpServer = startServer();
         
         //Setup RestAssured
@@ -58,9 +55,11 @@ public class MovieResourceTest {
         RestAssured.port = SERVER_PORT;
    
         RestAssured.defaultParser = Parser.JSON;
+        
+        String[] actors = new String[]{"Andreas", "Asger", "William", "Martin"};
+        movies.add(new Movie(1998, "Test Name 1", actors));
+        movies.add(new Movie(1999, "Test Name 2", actors));
     }
-    
-    List<Movie> movies = new ArrayList();
     
     @AfterAll
     public static void closeTestServer(){
@@ -73,13 +72,10 @@ public class MovieResourceTest {
     public void setUp() {
         EntityManager em = emf.createEntityManager();
         
-        String[] actors = new String[]{"Andreas", "Asger", "William", "Martin"};
-        movies.add(new Movie(1998, "Test Name 1", actors));
-        movies.add(new Movie(1999, "Test Name 2", actors));
-        
         try {
             em.getTransaction().begin();
             em.createNamedQuery("Movie.deleteAllRows").executeUpdate();
+            em.createNativeQuery("ALTER TABLE MOVIE AUTO_INCREMENT = 1").executeUpdate();
             em.getTransaction().commit();
             
             for(Movie m : movies) {
@@ -115,10 +111,9 @@ public class MovieResourceTest {
         .get("/movie/all").then()
         .assertThat()
         .statusCode(HttpStatus.OK_200.getStatusCode())
-        .body("actors[0]", hasItem("Andreas"));   
+        .body("[0].actors", hasItem("Andreas"));   
     }
     
-    @Disabled
     @Test
     public void testGetMovieById() throws Exception {
         given()
@@ -129,14 +124,13 @@ public class MovieResourceTest {
         .body("name", equalTo("Test Name 1"));   
     }
     
-    @Disabled
     @Test
     public void testGetMovieByName() throws Exception {
         given()
         .contentType("application/json")
-        .get("/movie/name/Test%20Name%202").then()
+        .get("/movie/name/Test Name 1").then()
         .assertThat()
         .statusCode(HttpStatus.OK_200.getStatusCode())
-        .body("name", equalTo("Test Name 2"));   
+        .body("[0].name", equalTo("Test Name 1"));   
     }
 }

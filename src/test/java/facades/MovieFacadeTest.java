@@ -12,7 +12,6 @@ import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import utils.EMF_Creator.DbSelector;
 import utils.EMF_Creator.Strategy;
@@ -26,6 +25,8 @@ public class MovieFacadeTest {
 
     public MovieFacadeTest() {
     }
+    
+    static List<Movie> movies = new ArrayList();
 
     //@BeforeAll
     public static void setUpClass() {
@@ -37,20 +38,16 @@ public class MovieFacadeTest {
                 EMF_Creator.Strategy.CREATE);
         facade = MovieFacade.getMovieFacade(emf);
     }
-
-    /*   **** HINT **** 
-        A better way to handle configuration values, compared to the UNUSED example above, is to store those values
-        ONE COMMON place accessible from anywhere.
-        The file config.properties and the corresponding helper class utils.Settings is added just to do that. 
-        See below for how to use these files. This is our RECOMENDED strategy
-     */
+    
     @BeforeAll
     public static void setUpClassV2() {
        emf = EMF_Creator.createEntityManagerFactory(DbSelector.TEST,Strategy.DROP_AND_CREATE);
        facade = MovieFacade.getMovieFacade(emf);
+       
+        String[] actors = new String[]{"Andreas", "Asger", "William", "Martin"};
+        movies.add(new Movie(1998, "Test Name 1", actors));
+        movies.add(new Movie(1999, "Test Name 2", actors));
     }
-    
-    List<Movie> movies = new ArrayList();
 
     @AfterAll
     public static void tearDownClass() {
@@ -62,13 +59,10 @@ public class MovieFacadeTest {
     public void setUp() {
         EntityManager em = emf.createEntityManager();
         
-        String[] actors = new String[]{"Andreas", "Asger", "William", "Martin"};
-        movies.add(new Movie(1998, "Test Name 1", actors));
-        movies.add(new Movie(1999, "Test Name 2", actors));
-        
         try {
             em.getTransaction().begin();
             em.createNamedQuery("Movie.deleteAllRows").executeUpdate();
+            em.createNativeQuery("ALTER TABLE MOVIE AUTO_INCREMENT = 1").executeUpdate();
             em.getTransaction().commit();
             
             for(Movie m : movies) {
@@ -99,7 +93,7 @@ public class MovieFacadeTest {
         assertEquals(2, databaseMovies.size(), "Expects two rows in the database");
     }
     
-    @Disabled
+    
     @Test
     public void testGetMovieById() {
         MovieDTO databaseMovie = facade.getMovieById(1);
@@ -108,7 +102,7 @@ public class MovieFacadeTest {
     
     @Test
     public void testGetMovieByName() {
-        MovieDTO databaseMovie = facade.getMovieByName("Test Name 1");
-        assertEquals(new MovieDTO(movies.get(0)), databaseMovie);
+        List<MovieDTO> databaseMovie = facade.getMovieByName("Test Name 1");
+        assertEquals(new MovieDTO(movies.get(0)), databaseMovie.get(0));
     }
 }
