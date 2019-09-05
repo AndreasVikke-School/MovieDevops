@@ -17,6 +17,7 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,7 +76,7 @@ public class MovieResourceTest {
         try {
             em.getTransaction().begin();
             em.createNamedQuery("Movie.deleteAllRows").executeUpdate();
-            em.createNativeQuery("ALTER TABLE MOVIE AUTO_INCREMENT = 1").executeUpdate();
+            //em.createNativeQuery("ALTER TABLE MOVIE AUTO_INCREMENT = 1").executeUpdate();
             em.getTransaction().commit();
             
             for(Movie m : movies) {
@@ -118,10 +119,10 @@ public class MovieResourceTest {
     public void testGetMovieById() throws Exception {
         given()
         .contentType("application/json")
-        .get("/movie/1").then()
+        .get("/movie/" + movies.get(0).getId()).then()
         .assertThat()
         .statusCode(HttpStatus.OK_200.getStatusCode())
-        .body("name", equalTo("Test Name 1"));   
+        .body("name", equalTo(movies.get(0).getName()));   
     }
     
     @Test
@@ -132,5 +133,15 @@ public class MovieResourceTest {
         .assertThat()
         .statusCode(HttpStatus.OK_200.getStatusCode())
         .body("[0].name", equalTo("Test Name 1"));   
+    }
+    
+    @Test
+    public void testGetMovieByUnkownName() throws Exception {
+        given()
+        .contentType("application/json")
+        .get("/movie/name/Unkown").then()
+        .assertThat()
+        .statusCode(HttpStatus.OK_200.getStatusCode())
+        .body("size()", is(0));
     }
 }

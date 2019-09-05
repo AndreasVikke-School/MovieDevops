@@ -62,7 +62,7 @@ public class MovieFacadeTest {
         try {
             em.getTransaction().begin();
             em.createNamedQuery("Movie.deleteAllRows").executeUpdate();
-            em.createNativeQuery("ALTER TABLE MOVIE AUTO_INCREMENT = 1").executeUpdate();
+            //em.createNativeQuery("ALTER TABLE MOVIE AUTO_INCREMENT = 1").executeUpdate();
             em.getTransaction().commit();
             
             for(Movie m : movies) {
@@ -96,7 +96,7 @@ public class MovieFacadeTest {
     
     @Test
     public void testGetMovieById() {
-        MovieDTO databaseMovie = facade.getMovieById(1);
+        MovieDTO databaseMovie = facade.getMovieById(movies.get(0).getId());
         assertEquals(new MovieDTO(movies.get(0)), databaseMovie);
     }
     
