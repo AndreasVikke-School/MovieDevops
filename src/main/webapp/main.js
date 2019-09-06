@@ -1,19 +1,19 @@
 window.onload = function() {
     
     document.getElementById("countBtn").onclick = function() {
-        fetchUrl("https://andreasvikke.dk/MovieDevops/api/movie/count", "count");
+        fetchUrl("/MovieDevops/api/movie/count", "count");
     }
 
     document.getElementById("allBtn").onclick = function() {
-        fetchUrl("https://andreasvikke.dk/MovieDevops/api/movie/all", "all");
+        fetchUrl("/MovieDevops/api/movie/all", "all");
     }
 
     document.getElementById("idBtn").onclick = function() {
-        fetchUrl("https://andreasvikke.dk/MovieDevops/api/movie/" + document.getElementById("inputField").value, "id");
+        fetchUrl("/MovieDevops/api/movie/" + document.getElementById("inputField").value, "id");
     }
 
     document.getElementById("nameBtn").onclick = function() {
-        fetchUrl("https://andreasvikke.dk/MovieDevops/api/movie/name/" + document.getElementById("inputField").value, "name");
+        fetchUrl("/MovieDevops/api/movie/name/" + document.getElementById("inputField").value, "name");
     }
 }
 
