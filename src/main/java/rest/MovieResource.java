@@ -49,7 +49,7 @@ public class MovieResource {
     @Path("count")
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public String getAllMovies() {
+    public String getMovieCount() {
         long count = FACADE.getMovieCount();
         return "{\"count\":" + count + "}";
     }
