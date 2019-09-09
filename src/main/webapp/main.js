@@ -18,7 +18,9 @@ window.onload = function() {
 }
 
 
-function createTable(a, single) {
+function createTable(a) {
+    var single = a.length == undefined ? true : false;
+    
     const myNode = document.getElementById("table");
     while (myNode.firstChild) {
         myNode.removeChild(myNode.firstChild);
@@ -48,12 +50,6 @@ function fetchUrl(url, type) {
         switch(type) {
             case "count":
                 document.getElementById("output").innerHTML = "Count: " + data.count;
-                break;
-            case "all":
-                createTable(data, false);
-                break;
-            case "name":
-                createTable(data, false);
                 break;
             default:
                 createTable(data, true);
